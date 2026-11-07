@@ -1,59 +1,65 @@
 version: 2
 updates:
+  # One grouped PR per ecosystem, once a month.
+  #
+  # Grouping major with minor and patch keeps the notification volume to a single
+  # PR per ecosystem instead of one per dependency. `open-pull-requests-limit: 1`
+  # caps it even if a group is ever split.
+  #
+  # `cooldown` holds every release for a week (30 days for majors) before it can
+  # be adopted, which is the main defence against a compromised or yanked
+  # release being pulled in automatically.
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    # Do not adopt a release until it has been public for a week. This is the
-    # main defence against a compromised or yanked release being pulled in
-    # automatically; majors wait longer.
+      interval: "monthly"
+    open-pull-requests-limit: 1
     cooldown:
       default-days: 7
       semver-major-days: 30
       semver-minor-days: 7
       semver-patch-days: 3
     groups:
-      pip-minor-and-patch:
+      pip:
         patterns: ["*"]
-        update-types: ["minor", "patch"]
+        update-types: ["major", "minor", "patch"]
     labels:
       - "type:chore"
+      - "dependencies"
 
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
+      interval: "monthly"
+    open-pull-requests-limit: 1
     cooldown:
       default-days: 7
       semver-major-days: 30
       semver-minor-days: 7
       semver-patch-days: 3
     groups:
-      npm-minor-and-patch:
+      npm:
         patterns: ["*"]
-        update-types: ["minor", "patch"]
+        update-types: ["major", "minor", "patch"]
     labels:
       - "type:chore"
+      - "dependencies"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
+      interval: "monthly"
+    open-pull-requests-limit: 1
     cooldown:
       default-days: 7
       semver-major-days: 30
       semver-minor-days: 7
       semver-patch-days: 3
     groups:
-      actions-minor-and-patch:
+      github-actions:
         patterns: ["*"]
-        update-types: ["minor", "patch"]
+        update-types: ["major", "minor", "patch"]
     labels:
       - "type:chore"
+      - "dependencies"
       - "area:ci"
