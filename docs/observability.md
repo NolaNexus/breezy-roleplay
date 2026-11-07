@@ -113,6 +113,21 @@ this same shape.
 | Workflow validity  | The `actionlint` job                                            |
 | Dependency updates | Dependabot pull requests                                        |
 
+## Merge Gate
+
+`main` is protected by the ruleset in `.github/rulesets/main.json`, applied with
+`python scripts/apply_ruleset.py`. Two checks gate every merge:
+
+- `CI status` is the aggregate job at the end of `ci.yml`. It fails when any of
+  lint, type, test, quality, workflows, docs, or pre-commit fails, and it prints
+  a per-job table to the run summary. Gating on the aggregate keeps the
+  protection stable when the test matrix changes.
+- `Security Review` is the Semgrep job. A new finding blocks the merge and
+  appears in the code scanning alerts list at the same time.
+
+Direct pushes and force-pushes to `main` are rejected, so the CI result on a
+commit is always the result that was merged.
+
 ## Health Checks
 
 `error-to-issue.yml` runs `python -m breezy_roleplay demo` in a scratch

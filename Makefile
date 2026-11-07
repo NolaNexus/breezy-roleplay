@@ -13,7 +13,7 @@ NPM ?= npm
 .DEFAULT_GOAL := help
 
 .PHONY: help setup install lint format format-check type test coverage demo smoke \
-        quality docs security changelog workflows check clean
+        quality docs security changelog workflows ruleset ruleset-dry-run check clean
 
 help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) \
@@ -76,6 +76,12 @@ changelog: ## Regenerate CHANGELOG.md from Conventional Commits
 
 workflows: ## Validate workflow files with actionlint
 	docker run --rm -v "$(CURDIR):/repo" -w /repo rhysd/actionlint:1.7.12
+
+ruleset: ## Apply .github/rulesets/main.json to the repository (requires admin)
+	python3 scripts/apply_ruleset.py
+
+ruleset-dry-run: ## Print the branch ruleset payload without applying it
+	python3 scripts/apply_ruleset.py --dry-run
 
 check: lint format-check type coverage quality docs ## Everything CI runs
 	git diff --exit-code docs/scenarios.md

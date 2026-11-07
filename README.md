@@ -107,6 +107,19 @@ make security
 The readable report is written to `reports/security-review.txt`. Never commit a
 real token; `.env.example` lists the variables the CLI understands.
 
+## Branch Protection
+
+`main` is protected by a ruleset versioned at
+[`.github/rulesets/main.json`](.github/rulesets/main.json): no direct pushes or
+force-pushes, linear history, a pull request with resolved threads, and the
+`CI status` and `Security Review` checks passing against the current base
+branch. Reproduce or repair the protection with the idempotent helper:
+
+```bash
+python scripts/apply_ruleset.py --dry-run   # inspect the payload
+python scripts/apply_ruleset.py             # create or update the ruleset
+```
+
 ## License
 
 MIT

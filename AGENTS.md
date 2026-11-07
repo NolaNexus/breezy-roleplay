@@ -151,6 +151,29 @@ Add the file to `scenarios/` and run `make docs`.
 3. Describe the change, the motivation, and how it was verified. Link the issue.
 4. All CI jobs and the Semgrep review must pass; squash merge is preferred.
 
+## Branch Protection
+
+`main` is protected by the ruleset checked in at `.github/rulesets/main.json`.
+Do not edit protection in the GitHub UI: change the file, review it, then apply
+it with `python scripts/apply_ruleset.py` (add `--dry-run` to inspect the
+payload). The script is idempotent, so re-running it converges on the file.
+
+Enforced rules: no deletion, no force-push, linear history, pull request
+required, unresolved review threads block merge, and these status checks must
+pass against the current base branch:
+
+- `CI status` (the aggregate job in `ci.yml`)
+- `Security Review`
+
+Repository admins hold a `pull_request`-scoped bypass, so an admin can still
+merge without a second reviewer but cannot push directly to `main` and cannot
+bypass failing checks. Because the ruleset is tied to the aggregate `CI status`
+job rather than to each matrix leg, adding a Python version to the test matrix
+does not require a protection change.
+
+If you add or rename a CI job that should gate merges, update
+`.github/rulesets/main.json` in the same pull request.
+
 ## Where to Look
 
 - Runbooks: `docs/runbooks/`

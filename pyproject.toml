@@ -102,14 +102,18 @@ max-complexity = 10
 # Tests deliberately feed fake credentials to the redaction and logging helpers,
 # and spawn the CLI as a subprocess.
 "tests/**" = ["S105", "S106", "S107", "S603", "S607"]
+# Maintenance scripts invoke first-party tooling (gh, docker, pytest) with fixed
+# argument lists, so the shell-execution warnings do not apply.
+"scripts/**" = ["S603", "S607"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["breezy_roleplay"]
 
 [tool.mypy]
 strict = true
-files = ["src", "tests"]
+files = ["src", "tests", "scripts"]
 python_version = "3.11"
+mypy_path = ["src", "scripts"]
 warn_unreachable = true
 show_error_codes = true
 
@@ -121,7 +125,7 @@ disallow_untyped_decorators = false
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "scripts"]
 addopts = "-ra --strict-markers --strict-config --durations=10"
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
