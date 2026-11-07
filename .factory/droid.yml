@@ -1,0 +1,11 @@
+# Factory‑droid configuration for Breezy Roleplay Sessions
+# https://docs.factory.ai/droid.html
+
+repository:
+  defaultBranch: main
+
+# Auto‑run workflows  (placeholder)
+# workflows:
+#   - src: .github/workflows/ci.yml
+
+# No additional steps needed for this lightweight repo
