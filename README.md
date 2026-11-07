@@ -43,6 +43,19 @@ The script will produce `sessions/$SESSION.zip`, which you can store or share.
 * A GitHub Actions workflow `.github/workflows/ci.yml` lints all Markdown files.
 * It also validates that at least one scenario file exists when a PR is opened.
 
+## Security
+
+Security review runs automatically through `.github/workflows/security-review.yml` on every push to `main`, on pull requests, and weekly. It runs Semgrep with the `p/default` and `p/secrets` rulesets, uploads SARIF results to GitHub code scanning, publishes a readable report to the workflow summary and pull request, and stores the text and SARIF reports as workflow artifacts.
+
+Run the same review locally:
+
+```bash
+python3 -m pip install -r requirements-security.txt
+./scripts/security_review.sh
+```
+
+The report is written to `reports/security-review.txt`.
+
 ## Future Enhancements
 - Automate transcript capture and auto‑summary generation.
 - Integrate Factory‑droid to trigger CI or custom workflows.
