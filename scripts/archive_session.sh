@@ -1,25 +1,13 @@
 #!/usr/bin/env bash
+# Thin wrapper around `python -m breezy_roleplay archive`.
+#
+# Archive layout is owned by the Python package so the shell helpers and the CLI
+# cannot drift apart. This script only resolves the repository root and forwards
+# its arguments.
 
-# Archive an existing session directory into a zip file
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-  echo "Usage: $0 <session-id>" >&2
-  echo "Example: $0 session-20261107-demo" >&2
-  exit 1
-fi
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export PYTHONPATH="${ROOT_DIR}/src${PYTHONPATH:+:${PYTHONPATH}}"
 
-SESSION_DIR="$PWD/sessions/$1"
-if [[ ! -d "$SESSION_DIR" ]]; then
-  echo "Session directory not found: $SESSION_DIR" >&2
-  exit 1
-fi
-
-ZIP_FILE="${SESSION_DIR}.zip"
-
-echo "Zipping $SESSION_DIR into $ZIP_FILE"
-# Simple zip; adjust if tools unavailable
-zip -r "$ZIP_FILE" "$SESSION_DIR"
-
-echo "Archive created: $ZIP_FILE"
-""
+exec python3 -m breezy_roleplay archive "$@"

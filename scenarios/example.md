@@ -3,12 +3,14 @@
 **Title:** Conversation between a traveler and a shopkeeper
 
 **Participants:**
+
 - Traveler
 - Shopkeeper
 
 **Setting:** A bustling market square in a fantasy town.
 
 **Scenario Outline:**
+
 1. Traveler enters the shop.
 2. Shopskeeper greets and offers goods.
 3. Traveler negotiates price.

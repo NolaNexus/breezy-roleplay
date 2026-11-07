@@ -1,0 +1,8 @@
+# ShellCheck configuration.
+#
+# Optional checks are intentionally not all enabled: this repository only needs
+# correctness and portability, not the full opinionated style set.
+shell=bash
+external-sources=true
+source-path=SCRIPTDIR
+disable=SC2317

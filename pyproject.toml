@@ -1,0 +1,157 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "breezy-roleplay"
+version = "0.1.0"
+description = "A small, typed CLI for creating and archiving roleplay sessions"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Nola Nexus", email = "nolanexus@users.noreply.github.com" }]
+keywords = ["roleplay", "session", "cli", "observability"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Games/Entertainment :: Role-Playing",
+  "Typing :: Typed",
+]
+dependencies = []
+
+# Development tooling lives in a PEP 735 dependency group, not in
+# ``optional-dependencies``: these tools are invoked as commands and are never
+# imported by the package, so they must not be treated as runtime extras.
+# ``requirements-dev.txt`` pins the same set for pip and CI.
+[dependency-groups]
+dev = [
+  "build==1.6.1",
+  "deptry==0.25.1",
+  "mypy==2.4.1",
+  "pre-commit==4.7.0",
+  "pytest==9.2.0",
+  "pytest-cov==7.1.0",
+  "pytest-rerunfailures==16.7",
+  "pytest-xdist==3.8.0",
+  "ruff==0.17.4",
+  "shellcheck-py==0.11.0.1",
+  "vulture==2.16",
+  "yamllint==1.38.0",
+]
+
+[project.scripts]
+breezy-roleplay = "breezy_roleplay.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/NolaNexus/breezy-roleplay"
+Issues = "https://github.com/NolaNexus/breezy-roleplay/issues"
+Changelog = "https://github.com/NolaNexus/breezy-roleplay/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/breezy_roleplay"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/scripts",
+  "/scenarios",
+  "/README.md",
+  "/CHANGELOG.md",
+  "/pyproject.toml",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests", "scripts"]
+extend-exclude = ["reports", ".venv", "node_modules"]
+
+[tool.ruff.lint]
+select = [
+  "ANN", # flake8-annotations
+  "B",   # flake8-bugbear
+  "C90", # mccabe complexity
+  "E",   # pycodestyle errors
+  "F",   # pyflakes
+  "I",   # isort
+  "N",   # pep8-naming
+  "PT",  # flake8-pytest-style
+  "RUF", # ruff-specific rules
+  "S",   # flake8-bandit
+  "SIM", # flake8-simplify
+  "UP",  # pyupgrade
+  "W",   # pycodestyle warnings
+]
+ignore = [
+  "ANN401", # ``**kwargs: Any`` is the intended passthrough signature for the logger
+  "S101",   # asserts are the mechanism tests use
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+# Tests deliberately feed fake credentials to the redaction and logging helpers,
+# and spawn the CLI as a subprocess.
+"tests/**" = ["S105", "S106", "S107", "S603", "S607"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["breezy_roleplay"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+python_version = "3.11"
+warn_unreachable = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+# pytest fixtures and mocks legitimately reach into dynamic attributes.
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --strict-markers --strict-config --durations=10"
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+markers = [
+  "integration: end-to-end tests that spawn the CLI as a subprocess",
+]
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+source = ["breezy_roleplay"]
+branch = true
+relative_files = true
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+]
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.vulture]
+min_confidence = 80
+paths = ["src"]
+ignore_names = ["main"]
+
+[tool.deptry]
+known_first_party = ["breezy_roleplay"]

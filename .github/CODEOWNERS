@@ -1,0 +1,8 @@
+# Define ownership for the entire repository
+* @NolaNexus
+
+# Directories and files with more specific ownership
+/docs/ @NolaNexus
+/.github/workflows/ @NolaNexus
+/src/ @NolaNexus
+/tests/ @NolaNexus

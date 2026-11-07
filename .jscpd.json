@@ -1,0 +1,18 @@
+{
+  "threshold": 5,
+  "minTokens": 50,
+  "reporters": ["console", "json"],
+  "output": "reports/jscpd",
+  "ignore": [
+    "**/.git/**",
+    "**/.venv/**",
+    "**/node_modules/**",
+    "**/reports/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/sessions/**",
+    "**/coverage.xml",
+    "**/junit.xml",
+    "**/package-lock.json"
+  ]
+}

@@ -1,0 +1,82 @@
+# Labels synced to the repository by .github/workflows/labels.yml.
+# Colours are hex without the leading '#'.
+- name: priority:P0
+  color: "b60205"
+  description: "Highest priority - fix immediately."
+- name: priority:P1
+  color: "d93f0b"
+  description: "High priority - fix in the current cycle."
+- name: priority:P2
+  color: "fbca04"
+  description: "Medium priority - normal triage order."
+- name: priority:P3
+  color: "0e8a16"
+  description: "Low priority - when time allows."
+
+- name: type:bug
+  color: "d73a4a"
+  description: "Something is not working."
+- name: type:feature
+  color: "a2eeef"
+  description: "New capability or enhancement."
+- name: type:chore
+  color: "6f42c1"
+  description: "Maintenance, dependency, or build work."
+- name: type:docs
+  color: "0075ca"
+  description: "Documentation changes."
+- name: type:security
+  color: "b60205"
+  description: "Security finding or hardening work."
+- name: type:test
+  color: "c5def5"
+  description: "Test coverage or test infrastructure."
+
+- name: area:cli
+  color: "0366d6"
+  description: "The command-line interface."
+- name: area:session
+  color: "1d76db"
+  description: "Session layout, metadata, metrics, archiving."
+- name: area:docs
+  color: "0075ca"
+  description: "Documentation and runbooks."
+- name: area:ci
+  color: "6cc644"
+  description: "Continuous integration and workflows."
+- name: area:security
+  color: "e11d21"
+  description: "Semgrep, code scanning, and supply chain."
+- name: area:scenarios
+  color: "ffab70"
+  description: "Scenario definitions and the scenario index."
+
+- name: status:needs-triage
+  color: "ededed"
+  description: "Not yet triaged."
+- name: status:blocked
+  color: "ededed"
+  description: "Blocked on an external dependency or decision."
+- name: status:stale
+  color: "ededed"
+  description: "No activity for a while; will be closed."
+
+- name: size/S
+  color: "c2e0c6"
+  description: "Small change: up to 5 files."
+- name: size/M
+  color: "fef2c0"
+  description: "Medium change: 6 to 20 files."
+- name: size/L
+  color: "f9d0c4"
+  description: "Large change: more than 20 files."
+
+- name: dependencies
+  color: "0366d6"
+  description: "Dependency updates."
+- name: good first issue
+  color: "7057ff"
+  description: "Good entry point for a new contributor."
+- name: automated
+  color: "bfd4f2"
+  description: "Opened or maintained by automation."

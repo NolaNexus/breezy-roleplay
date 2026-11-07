@@ -1,0 +1,18 @@
+{
+  "name": "breezy-roleplay-tooling",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Markdown, formatting, and duplication tooling for the Breezy roleplay repository",
+  "scripts": {
+    "lint:md": "markdownlint \"**/*.md\"",
+    "format:md": "prettier --write \"**/*.md\"",
+    "format:md:check": "prettier --check \"**/*.md\"",
+    "duplicates": "jscpd --config .jscpd.json ."
+  },
+  "devDependencies": {
+    "jscpd": "5.4.2",
+    "markdownlint-cli": "0.50.0",
+    "prettier": "3.9.10",
+    "yaml-lint": "1.7.0"
+  }
+}

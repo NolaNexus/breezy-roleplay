@@ -1,45 +1,51 @@
-# Project Plan – Breezy Roleplay Sessions
+# Project Plan - Breezy Roleplay Sessions
 
 ## Goal
-Establish a lightweight, reproducible repository structure that makes creating, executing, recording, and sharing role‑play scenarios straightforward.
 
-## High‑level Architecture
+Keep a lightweight, reproducible repository structure that makes creating,
+running, recording, and sharing role-play scenarios straightforward, with the
+same quality gates a production service would have.
 
-```
-├── README.md                     # Overview
-├── plan.md                       # This plan file
-├── .gitignore                    # Common ignore patterns
+## Current State
+
+The scaffolding described in the original plan is complete. What exists today:
+
+```text
+├── README.md                     # Overview and quick start
+├── AGENTS.md                     # Contributor and agent workflow
+├── plan.md                       # This file
+├── roadmap.md                    # Planned work
+├── CHANGELOG.md                  # Release history
 ├── scenarios/                    # Source files for each scenario
 │   └── example.md                # Sample scenario
-├── sessions/                     # Result artifacts for executed sessions
-│   ├── session-YYYYMMDD/         # Timeline‑based output folder
-│   │   ├── transcript.txt        # Raw role‑play transcript
-│   │   └── summary.md            # Human‑readable summary
-├── scripts/                      # Utility scripts (bash/python)
-│   ├── create_session.sh         # Initialize a new session directory
-│   └── archive_session.sh        # Zip or upload session
-└── .factory/                     # Optional Factory configuration (if used)
+├── sessions/                     # Result artifacts for executed sessions (git-ignored)
+│   └── <session-id>/             # transcript.txt, summary.md, metadata.json, metrics.json
+├── src/breezy_roleplay/          # Typed Python package that owns the session layout
+│   ├── cli.py                    # create / archive / list / demo
+│   ├── session.py                # SessionStore
+│   ├── logging.py                # Structured JSON logging with redaction
+│   ├── metrics.py                # Prometheus textfile metrics
+│   ├── errors.py                 # errors.json capture per session
+│   ├── features.py               # Environment-driven feature flags
+│   └── redact.py                 # Secret redaction helpers
+├── tests/                        # Unit tests and subprocess integration tests
+├── scripts/                      # Quality gates and thin CLI wrappers
+├── docs/                         # Architecture, observability, runbooks, scenario index
+└── .github/                      # CI, security review, release, templates, labels
 ```
 
-## Deliverables
-1. **Directory layout** – Already created.
-2. **Scenario files** – Create a living example in `scenarios/example.md`.
-3. **Automation scripts** – Basic Bash helpers for:
-   * Starting a session (`create_session.sh`).
-   * Recording a transcript.
-   * Archiving or publishing the session.
-4. **Documentation** – Update `README.md` to describe local workflow.
-5. **Optional CI** – GitHub Actions to lint Markdown & ensure the repo has at least one scenario.
+## Status Against the Original Deliverables
+
+1. **Directory layout** - Done.
+2. **Scenario files** - Done: `scenarios/example.md`, indexed in `docs/scenarios.md`.
+3. **Automation scripts** - Done: `scripts/create_session.sh` and
+   `scripts/archive_session.sh` are thin wrappers around
+   `python -m breezy_roleplay create|archive`, so the layout lives in one place.
+4. **Documentation** - Done: `README.md`, `AGENTS.md`, `docs/`, and runbooks.
+5. **CI** - Done: `.github/workflows/ci.yml` runs lint, type, test, coverage,
+   quality, docs, and pre-commit jobs; `security-review.yml` runs Semgrep.
 
 ## Next Actions
-- Draft the sample scenario file.
-- Write the `create_session.sh` script template.
-- Write the `archive_session.sh` script template.
-- Add basic Markdown linting workflow.
-- Commit all changes.
 
----
-
-Timestamp: `2026‑11‑07` | Author: @droid
-
----
+Open work is tracked in [`roadmap.md`](roadmap.md) and in GitHub issues rather
+than in this file, so there is a single backlog.

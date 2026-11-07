@@ -1,0 +1,18 @@
+extends: default
+
+ignore: |
+  .venv/
+  node_modules/
+  reports/
+  dist/
+  build/
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  truthy:
+    allowed-values: ["true", "false", "on"]
+  document-start: disable
+  comments:
+    min-spaces-from-content: 1

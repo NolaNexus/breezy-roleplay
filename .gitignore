@@ -1,8 +1,47 @@
-# Ignore unwanted files
+# OS and editor noise
 .DS_Store
-node_modules
+Thumbs.db
 *.log
 *.tmp
+*.swp
 
-# Generated security review output
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Generated reports and build output
 reports/
+dist/
+build/
+*.egg-info/
+coverage.xml
+junit.xml
+smoke-report.txt
+RELEASE_NOTES.md
+target/
+*.class
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Sessions are runtime output; only the archived zips are worth keeping out of git
+sessions/*
+!sessions/.gitkeep
+
+# IDE
+.idea/
+.vscode/

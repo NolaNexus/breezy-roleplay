@@ -1,65 +1,112 @@
-# Breezy Roleplay Session Repository
+# Breezy Roleplay
 
-## Overview
-This repository serves as a playground for running and documenting role‑play scenarios.  It is a lightweight, reproducible environment that lets you:
+A small, typed Python CLI for running and documenting role-play scenarios. It
+owns one job well: creating, populating, and archiving session directories with
+structured logs, metrics, and error capture attached.
 
-1. **Define** scenarios as Markdown files in `scenarios/`.
-2. **Record** sessions in `sessions/` – transcript and summary are stored per run.
-3. **Automate** session lifecycle with helper shell scripts.
-4. **Collaborate** using Git – fork, issue‑track, and merge changes.
+- **Define** scenarios as Markdown files in `scenarios/`.
+- **Run** a session directory in `sessions/<session-id>/` with a transcript,
+  summary, metadata, and metrics.
+- **Archive** it to `sessions/<session-id>.zip` with relative member paths.
 
-> The repo starts as a minimal scaffold – you can add more tooling, CI, or formatting plugins as your workflow evolves.
+## Prerequisites
 
-## Getting Started
+- Python 3.11 or newer
+- Node 20 or newer (for Markdown, duplication, and YAML tooling)
+- `bash`, `git`, and `zip`/`unzip`
+
+## Quick Start
 
 ```bash
-# Clone the repo
-git clone https://github.com/your-org/breezy-roleplay.git
+git clone https://github.com/NolaNexus/breezy-roleplay.git
 cd breezy-roleplay
+
+make setup   # virtualenv, dev dependencies, editable install, pre-commit hooks
+make demo    # create and archive a demonstration session
+make check   # everything CI runs
 ```
 
-### 1. Create a scenario
-Place a Markdown file in `scenarios/`.  An example is provided in `scenarios/example.md`.
+## Commands
 
-### 2. Start a new session
+| Command             | Description                                                     |
+| ------------------- | --------------------------------------------------------------- |
+| `make setup`        | Create `.venv`, install dev dependencies, install pre-commit    |
+| `make lint`         | Run Ruff                                                        |
+| `make format`       | Apply Ruff formatting                                           |
+| `make format-check` | Verify formatting without writing                               |
+| `make type`         | Run MyPy in strict mode                                         |
+| `make test`         | Run the test suite in parallel                                  |
+| `make coverage`     | Run tests with branch coverage and the 85% gate                 |
+| `make quality`      | Large files, complexity, TODO ownership, dead code, duplication |
+| `make docs`         | Regenerate `docs/scenarios.md`                                  |
+| `make security`     | Run the local Semgrep review                                    |
+| `make demo`         | Create and archive a demonstration session                      |
+| `make check`        | Everything above that CI runs                                   |
+
+## CLI
+
 ```bash
-# Create a unique session ID (recommended: date‑plus‑label)
-SESSION=demo-$(date +%Y%m%d%H%M%S)
-./scripts/create_session.sh $SESSION
+python -m breezy_roleplay create <session-id>
+python -m breezy_roleplay archive <session-id>
+python -m breezy_roleplay list
+python -m breezy_roleplay demo
 ```
-You’ll see **sessions/$SESSION** created with `transcript.txt` and `summary.md` placeholders.
 
-### 3. Run the role‑play
-> The actual engine is outside the scope of this skeleton.  Insert your runner’s output into `sessions/$SESSION/transcript.txt`.  Once the session completes, write a human‑readable summary to `sessions/$SESSION/summary.md`.
+Exit codes are `0` for success, `1` for a rejected operation (with the reason on
+stderr and a traceback recorded in `sessions/<session-id>/errors.json`), and `2`
+for a usage error.
 
-### 4. Archive the session
-```bash
-./scripts/archive_session.sh $SESSION
+The shell helpers `scripts/create_session.sh` and `scripts/archive_session.sh`
+are thin wrappers around the same commands, so the on-disk layout is defined in
+exactly one place.
+
+## Session Layout
+
+```text
+sessions/<session-id>/
+├── transcript.txt   # written by whatever runs the scenario
+├── summary.md       # human-readable summary
+├── metadata.json    # id, created_at, schema_version
+├── metrics.json     # created_at, duration_ms, steps
+└── errors.json      # only present after a failed command
+sessions/<session-id>.zip
 ```
-The script will produce `sessions/$SESSION.zip`, which you can store or share.
 
-## Development & CI
+Archiving never deletes the session directory and always writes flat, relative
+member names so the archive extracts safely anywhere.
 
-* A GitHub Actions workflow `.github/workflows/ci.yml` lints all Markdown files.
-* It also validates that at least one scenario file exists when a PR is opened.
+## Documentation
+
+- [AGENTS.md](AGENTS.md): contributor and agent workflow, conventions, policies
+- [docs/architecture.md](docs/architecture.md): components and session flow
+- [docs/observability.md](docs/observability.md): logs, metrics, trace IDs, CI data
+- [docs/runbooks/session-recovery.md](docs/runbooks/session-recovery.md): failure recovery
+- [docs/scenarios.md](docs/scenarios.md): generated scenario index
+- [roadmap.md](roadmap.md): planned work
+
+## Continuous Integration
+
+`.github/workflows/ci.yml` runs seven jobs on every push and pull request: lint,
+type, test (with coverage and JUnit artifacts), quality, docs drift, workflow
+syntax (`actionlint`), and `pre-commit`. `.github/workflows/security-review.yml`
+runs Semgrep on every push to `main`, on pull requests, and weekly, uploading
+SARIF to code scanning.
+
+`actionlint` and `yamllint` validate workflow files, and `git-cliff` generates
+release notes from Conventional Commits on tag pushes.
 
 ## Security
 
-Security review runs automatically through `.github/workflows/security-review.yml` on every push to `main`, on pull requests, and weekly. It runs Semgrep with the `p/default` and `p/secrets` rulesets, uploads SARIF results to GitHub code scanning, publishes a readable report to the workflow summary and pull request, and stores the text and SARIF reports as workflow artifacts.
-
-Run the same review locally:
+The security review runs automatically. To reproduce it locally:
 
 ```bash
 python3 -m pip install -r requirements-security.txt
-./scripts/security_review.sh
+make security
 ```
 
-The report is written to `reports/security-review.txt`.
+The readable report is written to `reports/security-review.txt`. Never commit a
+real token; `.env.example` lists the variables the CLI understands.
 
-## Future Enhancements
-- Automate transcript capture and auto‑summary generation.
-- Integrate Factory‑droid to trigger CI or custom workflows.
-- Add a lightweight web UI for scenario editing and live playback.
-- Expand the README with detailed schema for scenario files.
+## License
 
-Happy role‑playing!
+MIT

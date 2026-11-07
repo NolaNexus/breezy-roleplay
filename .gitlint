@@ -1,0 +1,18 @@
+# gitlint configuration for the commit-msg pre-commit hook.
+#
+# Commit messages follow Conventional Commits (see AGENTS.md) because
+# cliff.toml groups them into release notes.
+[general]
+contrib = contrib-title-conventional-commits
+regex-style-search = true
+ignore-merge-commits = true
+ignore-revert-commits = true
+ignore-fixup-commits = true
+ignore-squash-commits = true
+ignore=body-is-missing
+
+[title-max-length]
+line-length = 72
+
+[body-max-line-length]
+line-length = 100

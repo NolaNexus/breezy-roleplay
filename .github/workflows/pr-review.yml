@@ -1,0 +1,142 @@
+name: PR Review
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Review pull request hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Collect the diff
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git diff --name-status "$BASE_SHA" "$HEAD_SHA" > changed-files.txt
+          git diff --numstat "$BASE_SHA" "$HEAD_SHA" > numstat.txt
+          {
+            echo "files_changed=$(wc -l < changed-files.txt | tr -d ' ')"
+            echo "lines_added=$(awk '{a+=$1} END {print a+0}' numstat.txt)"
+            echo "lines_removed=$(awk '{d+=$2} END {print d+0}' numstat.txt)"
+          } >> "$GITHUB_ENV"
+
+      - name: Evaluate pull request hygiene
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          FILES_CHANGED: ${{ env.files_changed }}
+          LINES_ADDED: ${{ env.lines_added }}
+          LINES_REMOVED: ${{ env.lines_removed }}
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- pr-hygiene-review -->';
+            const pr = context.payload.pull_request;
+            const files = fs.readFileSync('changed-files.txt', 'utf8')
+              .split('\n').filter(Boolean).map((line) => {
+                const [status, ...rest] = line.split('\t');
+                return { status, path: rest.join('\t') };
+              });
+
+            const checks = [];
+            const add = (ok, label, detail) => checks.push({ ok, label, detail });
+
+            const conventional = /^(feat|fix|docs|test|ci|chore|refactor|perf|build|style|revert)(\([a-z0-9._-]+\))?!?: .+/;
+            add(conventional.test(pr.title), 'Title follows Conventional Commits', `\`${pr.title}\``);
+
+            const body = (pr.body || '').trim();
+            add(body.length >= 40, 'Description explains the change', `${body.length} characters`);
+            add(/^(-|\d+\.)\s/m.test(body) || /##\s/m.test(body), 'Description has structure', 'lists or headings');
+            add(/(closes|fixes|resolves)\s+#\d+/i.test(body), 'Links an issue', 'e.g. `Closes #12`');
+
+            const touchesSrc = files.some((f) => f.path.startsWith('src/'));
+            const touchesTests = files.some((f) => f.path.startsWith('tests/'));
+            if (touchesSrc) {
+              add(touchesTests, 'Source changes include tests', touchesTests ? 'tests/ updated' : 'no test file changed');
+              add(files.some((f) => f.path === 'CHANGELOG.md'), 'CHANGELOG.md updated', 'add an entry under Unreleased');
+            }
+
+            const touchesWorkflows = files.some((f) => f.path.startsWith('.github/workflows/'));
+            if (touchesWorkflows) {
+              add(true, 'Workflow change requires review', 'actionlint runs in CI');
+            }
+
+            const touchesDeps = files.some((f) => f.path === 'requirements-dev.txt' || f.path === 'pyproject.toml');
+            if (touchesDeps) {
+              add(true, 'Dependency change requires a lockfile check', 'npm/pip pins must stay exact');
+            }
+
+            const large = files.filter((f) => f.status !== 'D' && f.path.endsWith('.md')).length;
+            if (large > 10) {
+              add(false, 'Documentation spread', `${large} Markdown files changed`);
+            }
+
+            const failed = checks.filter((c) => !c.ok);
+            const rows = checks.map((c) => `| ${c.ok ? '✅' : '⚠️'} | ${c.label} | ${c.detail} |`).join('\n');
+
+            const body_ = [
+              marker,
+              '## Automated PR review',
+              '',
+              '| Status | Check | Detail |',
+              '| ------ | ----- | ------ |',
+              rows,
+              '',
+              `**Diff size:** ${process.env.FILES_CHANGED} files, ` +
+                `+${process.env.LINES_ADDED} / -${process.env.LINES_REMOVED}`,
+              '',
+              failed.length === 0
+                ? '_All hygiene checks passed._'
+                : `_${failed.length} item(s) need attention. These are review hints, not merge blockers; the required status checks are in the CI workflow._`,
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number, per_page: 100,
+            });
+            const existing = comments.find((c) => c.body && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: body_ });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: body_ });
+            }
+
+      - name: Apply a size label
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          FILES_CHANGED: ${{ env.files_changed }}
+        with:
+          script: |
+            const changed = Number(process.env.FILES_CHANGED || '0');
+            const label = changed <= 5 ? 'size/S' : changed <= 20 ? 'size/M' : 'size/L';
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const existing = await github.paginate(github.rest.issues.listLabelsOnIssue, {
+              owner, repo, issue_number, per_page: 100,
+            });
+            const sizeLabels = existing
+              .map((l) => l.name)
+              .filter((name) => name.startsWith('size/') && name !== label);
+            for (const name of sizeLabels) {
+              await github.rest.issues.removeLabel({ owner, repo, issue_number, name })
+                .catch(() => {});
+            }
+            await github.rest.issues.addLabels({ owner, repo, issue_number, labels: [label] })
+              .catch((error) => core.warning(`could not apply ${label}: ${error.message}`));
