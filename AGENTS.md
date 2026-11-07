@@ -123,6 +123,8 @@ Add the file to `scenarios/` and run `make docs`.
 - Dev tooling is a PEP 735 `dev` dependency group, mirrored in
   `requirements-dev.txt` with exact pins. `deptry` fails the build on drift.
 - Dependabot opens grouped weekly updates for pip, npm, and GitHub Actions.
+  `cooldown` holds every release for 7 days (30 for majors) before it can be
+  adopted, which is the main defence against a compromised release.
 - Pin GitHub Actions by commit SHA with a trailing `# vX` comment.
 
 ## Secrets

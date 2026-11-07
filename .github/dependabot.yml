@@ -6,6 +6,14 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 5
+    # Do not adopt a release until it has been public for a week. This is the
+    # main defence against a compromised or yanked release being pulled in
+    # automatically; majors wait longer.
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     groups:
       pip-minor-and-patch:
         patterns: ["*"]
@@ -19,6 +27,11 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     groups:
       npm-minor-and-patch:
         patterns: ["*"]
@@ -32,6 +45,11 @@ updates:
       interval: "weekly"
       day: "monday"
     open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     groups:
       actions-minor-and-patch:
         patterns: ["*"]
